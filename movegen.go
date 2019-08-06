@@ -37,6 +37,35 @@ func (l moveList) Less(i, j int) bool {
 	return l[i].Promotion > l[j].Promotion
 }
 
+// PseudoMoves returns the list of pseudo legal moves
+// We need this for chess backgammon
+func (b *Board) PseudoMoves() (moves []Move) {
+	gen := movegen{Board: b}
+	for i, piece := range gen.Piece {
+		if piece == NoPiece || piece.Color() != gen.SideToMove {
+			continue
+		}
+		sq := Sq(i)
+		switch piece.Type() {
+		case Pawn:
+			gen.pawn(sq)
+		case Knight:
+			gen.knight(sq)
+		case Bishop:
+			gen.bishop(sq)
+		case Rook:
+			gen.rook(sq)
+		case Queen:
+			gen.bishop(sq)
+			gen.rook(sq)
+		case King:
+			gen.king(sq)
+		}
+	}
+	// the position is illegal if the opponent is in check
+	return gen.moves
+}
+
 // pseudoLegalMoves returns the list of "pseudo-legal" moves in the current
 // position (i.e. moves that are legal except that they may leave one's own
 // king in check). Returns (nil, true) if the position is illegal because the
