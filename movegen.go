@@ -66,6 +66,28 @@ func (b *Board) PseudoMoves() (moves []Move) {
 	return gen.moves
 }
 
+func (b *Board) PseudoMovesFromSq(sq Sq) (moves []Move) {
+	gen := movegen{Board: b}
+	piece := gen.Piece[sq]
+	switch piece.Type() {
+	case Pawn:
+		gen.pawn(sq)
+	case Knight:
+		gen.knight(sq)
+	case Bishop:
+		gen.bishop(sq)
+	case Rook:
+		gen.rook(sq)
+	case Queen:
+		gen.bishop(sq)
+		gen.rook(sq)
+	case King:
+		gen.king(sq)
+	}
+	// the position is illegal if the opponent is in check
+	return gen.moves
+}
+
 // pseudoLegalMoves returns the list of "pseudo-legal" moves in the current
 // position (i.e. moves that are legal except that they may leave one's own
 // king in check). Returns (nil, true) if the position is illegal because the
